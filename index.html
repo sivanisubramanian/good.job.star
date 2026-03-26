@@ -117,46 +117,42 @@
 
     function randomBetween(a, b) { return a + Math.random() * (b - a); }
 
-    const COLORS = ['#FFD700', '#FFE44D', '#FFC200', '#FFEC80', '#B8860B', '#FFB347'];
-
-    function drawStar(cx, cy, r, color, rotation, alpha) {
-      const spikes = 5;
-      const outerRadius = r;
-      const innerRadius = r * 0.42;
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.translate(cx, cy);
-      ctx.rotate(rotation);
-      ctx.beginPath();
-      for (let i = 0; i < spikes * 2; i++) {
-        const radius = i % 2 === 0 ? outerRadius : innerRadius;
-        const angle = (i * Math.PI) / spikes - Math.PI / 2;
-        if (i === 0) ctx.moveTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
-        else ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
-      }
-      ctx.closePath();
-      ctx.fillStyle = color;
-      ctx.fill();
-      ctx.restore();
-    }
+    const COLORS = ['#FFD700','#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#FF8E53','#A29BFE','#FD79A8','#55EFC4'];
 
     function spawnParticles() {
       particles = [];
-      const w = canvas.width;
-      for (let i = 0; i < 160; i++) {
+      const w = canvas.width, h = canvas.height;
+      for (let i = 0; i < 140; i++) {
         particles.push({
-          x: randomBetween(w * 0.15, w * 0.85),
-          y: randomBetween(-30, -5),
-          vx: randomBetween(-4, 4),
-          vy: randomBetween(1.5, 7),
-          size: randomBetween(8, 22),
+          x: randomBetween(w * 0.2, w * 0.8),
+          y: randomBetween(-20, -5),
+          vx: randomBetween(-3, 3),
+          vy: randomBetween(2, 7),
+          size: randomBetween(6, 14),
           color: COLORS[Math.floor(Math.random() * COLORS.length)],
           rotation: randomBetween(0, Math.PI * 2),
-          rotSpeed: randomBetween(-0.12, 0.12),
-          gravity: randomBetween(0.07, 0.18),
+          rotSpeed: randomBetween(-0.15, 0.15),
+          shape: Math.random() > 0.5 ? 'rect' : 'circle',
+          gravity: randomBetween(0.08, 0.18),
           alpha: 1
         });
       }
+    }
+
+    function drawParticle(p) {
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') {
+        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
     }
 
     function animate() {
@@ -166,8 +162,8 @@
         p.y += p.vy;
         p.vy += p.gravity;
         p.rotation += p.rotSpeed;
-        if (p.y > canvas.height * 0.75) p.alpha -= 0.025;
-        drawStar(p.x, p.y, p.size, p.color, p.rotation, p.alpha);
+        if (p.y > canvas.height * 0.75) p.alpha -= 0.02;
+        drawParticle(p);
       });
       particles = particles.filter(p => p.alpha > 0);
       if (particles.length > 0) {
@@ -191,4 +187,13 @@
         if (animId) { cancelAnimationFrame(animId); animId = null; }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         congratsScreen.style.display = 'none';
-        starScreen.style.display
+        starScreen.style.display = 'flex';
+      }, 5000);
+    }
+
+    starBtn.addEventListener('click', showCongrats);
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+  </script>
+</body>
+</html>
